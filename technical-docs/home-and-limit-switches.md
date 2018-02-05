@@ -51,7 +51,7 @@ Each axis has it's own D-SUB 9 connector with wires for these three sensors
 * **Brown:** VCC
 * **Black:** Signal
 
-### D-Sub Socket for each axis {#h.p_RdlburaLUpGY}
+### D-Sub Socket for each axis
 
 1. Ground
 2. VCC \(Field Power +24V\)

@@ -3,6 +3,7 @@
 ## Overview
 
 * [Introduction](README.md)
+* [ZX45 Benchtop Mill](zx45-benchtop-mill.md)
 
 ## Technical Docs
 

@@ -53,6 +53,17 @@ Each axis has it's own D-SUB 9 connector with wires for these three sensors
 
 ### D-Sub Socket for each axis {#h.p_RdlburaLUpGY}
 
+1. Ground
+2. VCC \(Field Power +24V\)
+3. Singal: Negative Limit
+4. Signal: Positive Limit
+5. Signal: Home
+6. - 9. ~~not connected~~
+
+---
+
+## Terminal Block Schematic
+
 There is a small box for each axis to easily wire the sensors with the connection cable.
 
 **1 - Negative limit switch**

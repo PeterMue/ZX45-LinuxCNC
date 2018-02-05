@@ -58,7 +58,7 @@ Each axis has it's own D-SUB 9 connector with wires for these three sensors
 3. Singal: Negative Limit
 4. Signal: Positive Limit
 5. Signal: Home
-6. - 9  ~~not connected~~
+6. to 9.  ~~not connected~~
 
 ---
 

@@ -23,33 +23,20 @@ addf hm2_5i25.0.write         servo-thread
 
 # external input signals
 
+# --- X LIMIT & HOME ---
+net min-x	<=  hm2_5i25.0.7i76.0.0.input-00-not
+net max-x	<=  hm2_5i25.0.7i76.0.0.input-01-not
+net home-x	<=  hm2_5i25.0.7i76.0.0.input-02-not
 
-# --- MIN-X ---
-net min-x     <=  hm2_5i25.0.7i76.0.0.input-00
+# --- Y LIMIT & HOME ---
+net min-y	<=	hm2_5i25.0.7i76.0.0.input-04-not
+net max-y	<=  hm2_5i25.0.7i76.0.0.input-05-not
+net home-y	<=  hm2_5i25.0.7i76.0.0.input-06-not
 
-# --- MAX-X ---
-net max-x     <=  hm2_5i25.0.7i76.0.0.input-01
-
-# --- HOME-X ---
-net home-x     <=  hm2_5i25.0.7i76.0.0.input-02
-
-# --- MIN-Y ---
-net min-y     <=  hm2_5i25.0.7i76.0.0.input-04
-
-# --- MAX-Y ---
-net max-y     <=  hm2_5i25.0.7i76.0.0.input-05
-
-# --- HOME-Y ---
-net home-y     <=  hm2_5i25.0.7i76.0.0.input-06
-
-# --- MIN-Z ---
-net min-z     <=  hm2_5i25.0.7i76.0.0.input-08
-
-# --- MAX-Z ---
-net max-z     <=  hm2_5i25.0.7i76.0.0.input-09
-
-# --- HOME-Z ---
-net home-z     <=  hm2_5i25.0.7i76.0.0.input-10
+# --- Z LIMIT & HOME ---
+net min-z	<=  hm2_5i25.0.7i76.0.0.input-08
+net max-z	<=  hm2_5i25.0.7i76.0.0.input-09
+net home-z	<=  hm2_5i25.0.7i76.0.0.input-10
 
 #*******************
 #  AXIS X

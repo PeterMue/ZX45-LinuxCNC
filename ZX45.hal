@@ -5,7 +5,7 @@
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 loadrt hostmot2
-loadrt hm2_pci config=" num_encoders=1 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
+loadrt hm2_pci config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp    hm2_5i25.0.watchdog.timeout_ns 5000000
 loadrt pid names=pid.x,pid.y,pid.z,pid.s
 
@@ -20,6 +20,9 @@ addf hm2_5i25.0.write         servo-thread
 
 # external output signals
 
+net coolant-flood => hm2_5i25.0.7i76.0.0.output-00
+net coolant-mist  => hm2_5i25.0.7i76.0.0.output-01
+net coolant-mist  => hm2_5i25.0.7i76.0.0.output-02
 
 # external input signals
 

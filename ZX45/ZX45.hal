@@ -20,6 +20,7 @@ addf hm2_5i25.0.write         servo-thread
 
 # external output signals
 
+# --- Coolant ---
 net coolant-flood => hm2_5i25.0.7i76.0.0.output-00
 net coolant-mist  => hm2_5i25.0.7i76.0.0.output-01
 net coolant-mist  => hm2_5i25.0.7i76.0.0.output-02

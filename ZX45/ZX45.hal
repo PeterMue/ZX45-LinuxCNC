@@ -58,12 +58,12 @@ setp   pid.x.maxoutput [AXIS_0]MAX_OUTPUT
 setp   pid.x.error-previous-target true
 setp   pid.x.maxerror .0005
 
-net x-index-enable  <=> pid.x.index-enable
-net x-enable        =>  pid.x.enable
-net x-pos-cmd       =>  pid.x.command
-net x-vel-cmd       =>  pid.x.command-deriv
-net x-pos-fb        =>  pid.x.feedback
-net x-output        =>  pid.x.output
+net x-index-enable  <=> pid.x.index-enable <=> axis.0.index-enable <=> hm2_5i25.0.encoder.02.index-enable
+net x-enable        =>  pid.x.enable => axis.0.amp-enable-out => hm2_5i25.0.stepgen.00.enable
+net x-pos-cmd       =>  axis.0.motor-pos-cmd => pid.x.command
+# net x-vel-cmd       =>  pid.x.command-deriv
+net x-pos-fb        =>  pid.x.feedback <= hm2_5i25.0.encoder.02.position => axis.0.motor-pos-fb
+net x-output        =>  pid.x.output => hm2_5i25.0.stepgen.00.velocity-cmd
 
 # Step Gen signals/setup
 
@@ -79,13 +79,19 @@ setp   hm2_5i25.0.stepgen.00.maxvel           [AXIS_0]STEPGEN_MAXVEL
 
 # ---closedloop stepper signals---
 
-net x-pos-cmd    <= axis.0.motor-pos-cmd
-net x-vel-cmd    <= axis.0.joint-vel-cmd
-net x-output     <= hm2_5i25.0.stepgen.00.velocity-cmd
-net x-pos-fb     <= hm2_5i25.0.stepgen.00.position-fb
-net x-pos-fb     => axis.0.motor-pos-fb
-net x-enable     <= axis.0.amp-enable-out
-net x-enable     => hm2_5i25.0.stepgen.00.enable
+#net x-pos-cmd    <= axis.0.motor-pos-cmd
+#net x-vel-cmd    <= axis.0.joint-vel-cmd
+#net x-output     <= hm2_5i25.0.stepgen.00.velocity-cmd
+#net x-pos-fb     <= hm2_5i25.0.stepgen.00.position-fb
+#net x-pos-fb     => axis.0.motor-pos-fb
+#net x-enable     <= axis.0.amp-enable-out
+#net x-enable     => hm2_5i25.0.stepgen.00.enable
+setp hm2_5i25.0.encoder.02.counter-mode 0
+setp hm2_5i25.0.encoder.02.filter 1
+setp hm2_5i25.0.encoder.02.index-invert 0
+setp hm2_5i25.0.encoder.02.index-mask 0
+setp hm2_5i25.0.encoder.02.index-mask-invert 0
+setp hm2_5i25.0.encoder.02.scale [AXIS_0]ENCODER_SCALE
 
 # ---setup home / limit switch signals---
 

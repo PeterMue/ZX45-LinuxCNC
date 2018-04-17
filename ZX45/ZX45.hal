@@ -10,7 +10,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 loadrt hostmot2
 loadrt hm2_pci config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp   hm2_5i25.0.watchdog.timeout_ns 5000000
-loadrt pid names=pid.x,pid.y,pid.z,pid.s,pid.orient
+loadrt pid names=pid.x,pid.y,pid.z,pid.a,pid.s,pid.orient
 
 # --- LOAD Components ---
 loadrt abs_s32          names=abs_s32.sxp
@@ -44,6 +44,7 @@ addf motion-controller        servo-thread
 addf pid.x.do-pid-calcs       servo-thread
 addf pid.y.do-pid-calcs       servo-thread
 addf pid.z.do-pid-calcs       servo-thread
+addf pid.a.do-pid-calcs       servo-thread
 addf pid.s.do-pid-calcs       servo-thread
 addf hm2_5i25.0.write         servo-thread
 
@@ -193,6 +194,48 @@ net z-enable     => hm2_5i25.0.stepgen.02.enable
 net home-z  =>  axis.2.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-10
 net min-z   =>  axis.2.neg-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-08
 net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
+
+#*******************
+#  AXIS A
+#*******************
+
+# --- pid setup ---
+setp pid.a.Pgain                    [AXIS_3]P
+setp pid.a.Igain                    [AXIS_3]I
+setp pid.a.Dgain                    [AXIS_3]D
+setp pid.a.bias                     [AXIS_3]BIAS
+setp pid.a.FF0                      [AXIS_3]FF0
+setp pid.a.FF1                      [AXIS_3]FF1
+setp pid.a.FF2                      [AXIS_3]FF2
+setp pid.a.deadband                 [AXIS_3]DEADBAND
+setp pid.a.maxoutput                [AXIS_3]MAX_OUTPUT
+setp pid.a.error-previous-target    true
+setp pid.a.maxerror                 .0005
+
+# --- stepgen setup ---
+setp hm2_5i25.0.stepgen.04.dirsetup        [AXIS_3]DIRSETUP
+setp hm2_5i25.0.stepgen.04.dirhold         [AXIS_3]DIRHOLD
+setp hm2_5i25.0.stepgen.04.steplen         [AXIS_3]STEPLEN
+setp hm2_5i25.0.stepgen.04.stepspace       [AXIS_3]STEPSPACE
+setp hm2_5i25.0.stepgen.04.position-scale  [AXIS_3]STEP_SCALE
+setp hm2_5i25.0.stepgen.04.step_type       0
+setp hm2_5i25.0.stepgen.04.control-type    1
+setp hm2_5i25.0.stepgen.04.maxaccel        [AXIS_3]STEPGEN_MAXACCEL
+setp hm2_5i25.0.stepgen.04.maxvel          [AXIS_3]STEPGEN_MAXVEL
+
+# --- connections ---
+# axis movement
+net a-index-enable  <=> pid.a.index-enable
+net a-enable        <=  pid.a.enable         => axis.3.amp-enable-out => hm2_5i25.0.stepgen.04.enable
+net a-pos-cmd       <=  axis.3.motor-pos-cmd => pid.a.command 
+net a-vel-cmd       <=  axis.3.joint-vel-cmd => pid.a.command-deriv
+net a-pos-fb        =>  hm2_5i25.0.stepgen.04.position-fb => pid.a.feedback => axis.3.motor-pos-fb
+net a-output        <=  pid.a.output         => hm2_5i25.0.stepgen.04.velocity-cmd
+# home & limit
+net home-a  =>  axis.3.home-sw-in       
+net min-a   =>  axis.3.neg-lim-sw-in    
+net max-a   =>  axis.3.pos-lim-sw-in    
+
 
 #*******************
 #  SPINDLE S

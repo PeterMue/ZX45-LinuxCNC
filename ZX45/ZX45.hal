@@ -351,6 +351,12 @@ net jog-selected-pos      halui.jog.selected.plus
 net jog-selected-neg      halui.jog.selected.minus
 #net jog-speed             halui.jog-speed 
 
+net joint-select-d        halui.joint.3.select
+net a-is-homed            halui.joint.3.is-homed
+net jog-a-pos             halui.jog.3.plus
+net jog-a-neg             halui.jog.3.minus
+net jog-a-analog          halui.jog.3.analog
+
 net spindle-manual-cw     halui.spindle.forward
 net spindle-manual-ccw    halui.spindle.reverse
 net spindle-manual-stop   halui.spindle.stop

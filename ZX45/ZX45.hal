@@ -418,10 +418,10 @@ addf tristate-float.sxp-jog-increment-3     servo-thread
 addf ilowpass.sxp-feed                      servo-thread
 
 # step increments 
-setp tristate-float.sxp-jog-increment-0.in  0.000001
-setp tristate-float.sxp-jog-increment-1.in  0.000005
-setp tristate-float.sxp-jog-increment-2.in  0.00001
-setp tristate-float.sxp-jog-increment-3.in  0.0001
+setp tristate-float.sxp-jog-increment-0.in  0.000005
+setp tristate-float.sxp-jog-increment-1.in  0.00001
+setp tristate-float.sxp-jog-increment-2.in  0.0001
+setp tristate-float.sxp-jog-increment-3.in  0.001
 
 # step increment cycle (0..3)
 setp updown.sxp-feed-cycle.wrap     1

@@ -1,0 +1,5 @@
+net gear-state-low  gladevcp.hal_gear-led-low   <= hm2_5i25.0.7i76.0.0.output-08
+net gear-state-high gladevcp.hal_gear-led-high  <= hm2_5i25.0.7i76.0.0.output-09
+
+net gear-state-low  gladevcp.hal_gear-select-low    => hm2_5i25.0.7i76.0.0.output-08
+net gear-state-high gladevcp.hal_gear-select-high   => hm2_5i25.0.7i76.0.0.output-09

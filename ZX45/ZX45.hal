@@ -12,6 +12,21 @@ loadrt hm2_pci config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port
 setp   hm2_5i25.0.watchdog.timeout_ns 5000000
 loadrt pid names=pid.x,pid.y,pid.z,pid.s
 
+# --- LOAD Components ---
+loadrt abs_s32          names=abs_s32.sxp
+loadrt and2             names=and2.motion-enabled_spindle-unlocked,and2.spindle-release_spindle-on,and2.sxp-a-pos,and2.sxp-a-neg,and2.sxp-z-pos,and2.sxp-z-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-x-pos,and2.sxp-x-neg
+loadrt ilowpass         names=ilowpass.sxp-feed
+loadrt limit2           names=limit2.spindle-ramp
+loadrt mux2             names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
+loadrt near             names=near.spindle-speed_ramped-speed
+loadrt not              names=not.spindle-locked,not.spindle-at-ramped-speed
+loadrt or2              names=or2.spindle-on_spindle-ramping
+loadrt select8          names=select8.sxp-jog-speed,select8.sxp-jog-increment
+loadrt scale            names=scale.offset-spinout-zero,scale.sxp-jog-speed
+loadrt tristate_float   names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
+loadrt updown           names=updown.sxp-feed-cycle
+
+
 #*******************
 # Cycle methdos
 #*******************
@@ -175,12 +190,12 @@ net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 #  SPINDLE S
 #*******************
 
-loadrt not      names=not.spindle-locked,not.spindle-at-ramped-speed
-loadrt and2     names=and2.motion-enabled_spindle-unlocked,and2.spindle-release_spindle-on
-loadrt or2      names=or2.spindle-on_spindle-ramping
-loadrt limit2   names=limit2.spindle-ramp
-loadrt scale    names=scale.offset-spinout-zero
-loadrt near     names=near.spindle-speed_ramped-speed
+#loadrt not      names=not.spindle-locked,not.spindle-at-ramped-speed
+#loadrt and2     names=and2.motion-enabled_spindle-unlocked,and2.spindle-release_spindle-on
+#loadrt or2      names=or2.spindle-on_spindle-ramping
+#loadrt limit2   names=limit2.spindle-ramp
+#loadrt scale    names=scale.offset-spinout-zero
+#loadrt near     names=near.spindle-speed_ramped-speed
 
 # --- bind cycle functions ---
 # addf name                   servo-thread
@@ -203,30 +218,29 @@ setp hm2_5i25.0.7i76.0.0.spinout-scalemax       [SPINDLE_9]SPINOUT_SCALEMAX
 setp near.spindle-speed_ramped-speed.difference 1
 
 # --- wire some meaningful signals ---
-net motion-enabled          <= motion.motion-enabled
 net spindle-on              <= motion.spindle-on
 net spindle-locked          <= motion.spindle-locked
 net spindle-unlocked        <= not.spindle-locked.out
 net spindle-speed-out       <= motion.spindle-speed-out
 
 # --- wire logic ---
-net spindle-locked          <=  =>  not.spindle-locked.in
+net spindle-locked          =>  not.spindle-locked.in
 
 # > ramp spindle speed
-net spindle-speed-out       <=  => limit2.spindle-ramp.in
+net spindle-speed-out       => limit2.spindle-ramp.in
 net spindle-speed-ramped    <= limit2.spindle-ramp.out                          => scale.offset-spinout-zero.in
 net spindle-speed-spinout   <= scale.offset-spinout-zero.out                    => hm2_5i25.0.7i76.0.0.spinout
 
 # > servo enable switch conditions
-net motion-enabled          <=  =>  and2.motion-enabled_spindle-unlocked.in0
-net spindle-unlocked        <=  =>  and2.motion-enabled_spindle-unlocked.in1
+net motion-enabled          => and2.motion-enabled_spindle-unlocked.in0
+net spindle-unlocked        => and2.motion-enabled_spindle-unlocked.in1
 net ext-spindle-release     <= and2.motion-enabled_spindle-unlocked.out         => and2.spindle-release_spindle-on.in0
-net spindle-on              <=  =>  or2.spindle-on_spindle-ramping.in0
+net spindle-on              => or2.spindle-on_spindle-ramping.in0
 # > servo enable when ramping (ramp-out)
-net spindle-speed-out       <=  => near.spindle-speed_ramped-speed.in1
-net spindle-speed-ramped    <=  => near.spindle-speed_ramped-speed.in2
-net spindle-at-ramped-speed <= near.spindle-speed_ramped-speed.out              => not.spindle-at-ramped-speed.in0
-net spindle-speed-ramping   <= not.spindle-at-ramped-speed                      => or2.spindle-on_spindle-ramping.in1
+net spindle-speed-out       => near.spindle-speed_ramped-speed.in1
+net spindle-speed-ramped    => near.spindle-speed_ramped-speed.in2
+net spindle-at-ramped-speed <= near.spindle-speed_ramped-speed.out              => not.spindle-at-ramped-speed.in
+net spindle-speed-ramping   <= not.spindle-at-ramped-speed.out                  => or2.spindle-on_spindle-ramping.in1
 # > enable servo
 net spindle-on-or-ramping   <= or2.spindle-on_spindle-ramping.out               => hm2_5i25.0.7i76.0.0.spinena
 
@@ -254,6 +268,7 @@ setp hm2_5i25.0.encoder.00.scale             [SPINDLE_9]ENCODER_SCALE
 
 # ---Setup spindle at speed signals---
 
+net spindle-at-speed    <= motion.spindle-at-speed
 sets spindle-at-speed true
 
 
@@ -323,14 +338,14 @@ net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-p
 # ShuttleXpress
 #*******************
 loadusr -W shuttlexpress /dev/hidraw_shuttlexpress
-loadrt abs_s32 names=abs_s32.sxp
-loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
-loadrt tristate_float names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
-loadrt scale names=scale.sxp-jog-speed
-loadrt and2 names=and2.sxp-a-pos,and2.sxp-a-neg,and2.sxp-z-pos,and2.sxp-z-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-x-pos,and2.sxp-x-neg
-loadrt updown names=updown.sxp-feed-cycle
-loadrt ilowpass names=ilowpass.sxp-feed
-loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
+#loadrt abs_s32 names=abs_s32.sxp
+#loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
+#loadrt tristate_float names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
+#loadrt scale names=scale.sxp-jog-speed
+#loadrt and2 names=and2.sxp-a-pos,and2.sxp-a-neg,and2.sxp-z-pos,and2.sxp-z-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-x-pos,and2.sxp-x-neg
+#loadrt updown names=updown.sxp-feed-cycle
+#loadrt ilowpass names=ilowpass.sxp-feed
+#loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
 
 # --- wire shuttlexpress to meaningful signals ---
 net sxp.x-button        <= shuttlexpress.0.button-0
@@ -512,3 +527,4 @@ net sxp.counts-smooth   => axis.0.jog-counts
 net sxp.counts-smooth   => axis.1.jog-counts
 net sxp.counts-smooth   => axis.2.jog-counts
 #net sxp.counts-smooth   => axis.0.jog-counts
+

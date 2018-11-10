@@ -19,7 +19,7 @@ loadrt ilowpass         names=ilowpass.sxp-feed
 loadrt limit2           names=limit2.spindle-ramp
 loadrt mux2             names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
 loadrt near             names=near.spindle-speed_ramped-speed
-loadrt not              names=not.spindle-locked,not.spindle-at-ramped-speed
+loadrt not              names=not.spindle-locked,not.spindle-at-ramped-speed,not.motion-enabled
 loadrt or2              names=or2.spindle-on_spindle-ramping
 loadrt select8          names=select8.sxp-jog-speed,select8.sxp-jog-increment
 loadrt scale            names=scale.offset-spinout-zero,scale.sxp-jog-speed
@@ -201,6 +201,7 @@ net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 # addf name                   servo-thread
 addf not.spindle-locked                     servo-thread
 addf not.spindle-at-ramped-speed            servo-thread
+addf not.motion-enabled                     servo-thread
 addf and2.motion-enabled_spindle-unlocked   servo-thread
 addf and2.spindle-release_spindle-on        servo-thread
 addf or2.spindle-on_spindle-ramping         servo-thread
@@ -219,17 +220,20 @@ setp near.spindle-speed_ramped-speed.difference 1
 
 # --- wire some meaningful signals ---
 net machine-is-enabled      <= motion.motion-enabled
+net machine-is-disabled     <= not.motion-enabled.out
 net spindle-on              <= motion.spindle-on
 net spindle-locked          <= motion.spindle-locked
 net spindle-unlocked        <= not.spindle-locked.out
 net spindle-speed-out       <= motion.spindle-speed-out
 
 # --- wire logic ---
-net spindle-locked          =>  not.spindle-locked.in
+net spindle-locked          => not.spindle-locked.in
+net machine-is-enabled      => not.motion-enabled.in
 
 # > ramp spindle speed
 net spindle-speed-out       => limit2.spindle-ramp.in
 net spindle-speed-ramped    <= limit2.spindle-ramp.out                          => scale.offset-spinout-zero.in
+net machine-is-disabled     => limit2.spindle-ramp.load # immediate shut off ramping
 net spindle-speed-spinout   <= scale.offset-spinout-zero.out                    => hm2_5i25.0.7i76.0.0.spinout
 
 # > servo enable switch conditions

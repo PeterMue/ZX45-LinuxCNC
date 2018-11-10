@@ -180,6 +180,7 @@ loadrt and2     names=and2.motion-enabled_spindle-unlocked,and2.spindle-release_
 loadrt or2      names=or2.spindle-on_spindle-ramping
 loadrt limit2   names=limit2.spindle-ramp
 loadrt scale    names=scale.offset-spinout-zero
+loadrt near     names=near.spindle-speed_ramped-speed
 
 # --- bind cycle functions ---
 # addf name                   servo-thread
@@ -190,14 +191,16 @@ addf and2.spindle-release_spindle-on        servo-thread
 addf or2.spindle-on_spindle-ramping         servo-thread
 addf limit2.spindle-ramp                    servo-thread
 addf scale.offset-spinout-zero              servo-thread
+addf near.spindle-speed_ramped-speed        servo-thread
 
 # --- configure components ---
-setp limit2.spindle-ramp.maxv               [SPINDLE_9]RAMP_MAXV
-setp scale.offset-spinout-zero.gain         1
-setp scale.offset-spinout-zero.offset       [SPINDLE_9]SPINOUT_ZERO_OFFSET
-setp hm2_5i25.0.7i76.0.0.spinout-minlim     [SPINDLE_9]SPINOUT_MINLIM
-setp hm2_5i25.0.7i76.0.0.spinout-maxlim     [SPINDLE_9]SPINOUT_MAXLIM
-setp hm2_5i25.0.7i76.0.0.spinout-scalemax   [SPINDLE_9]SPINOUT_SCALEMAX     
+setp limit2.spindle-ramp.maxv                   [SPINDLE_9]RAMP_MAXV
+setp scale.offset-spinout-zero.gain             1
+setp scale.offset-spinout-zero.offset           [SPINDLE_9]SPINOUT_ZERO_OFFSET
+setp hm2_5i25.0.7i76.0.0.spinout-minlim         [SPINDLE_9]SPINOUT_MINLIM
+setp hm2_5i25.0.7i76.0.0.spinout-maxlim         [SPINDLE_9]SPINOUT_MAXLIM
+setp hm2_5i25.0.7i76.0.0.spinout-scalemax       [SPINDLE_9]SPINOUT_SCALEMAX     
+setp near.spindle-speed_ramped-speed.difference 1
 
 # --- wire some meaningful signals ---
 net motion-enabled          <= motion.motion-enabled

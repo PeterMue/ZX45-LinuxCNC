@@ -220,9 +220,9 @@ setp hm2_5i25.0.7i76.0.0.spinout-maxlim         [SPINDLE_9]SPINOUT_MAXLIM
 setp hm2_5i25.0.7i76.0.0.spinout-scalemax       [SPINDLE_9]SPINOUT_SCALEMAX     
 setp near.spindle-speed_ramped-speed.difference 1
 # > gear
-setp gear.shifter.low-ratio                          1
-setp gear.shifter.high-ratio                         0.33333333
-setp gear.shifter.max-low                            2500
+setp gear.shifter.low-ratio                     [SPINDLE_9]GEAR_RATIO_LOW
+setp gear.shifter.high-ratio                    [SPINDLE_9]GEAR_RATIO_HIGH
+setp gear.shifter.max-low                       [SPINDLE_9]GEAR_LOW_MAX_SPEED
 
 # --- wire some meaningful signals ---
 net machine-is-enabled      <= motion.motion-enabled
@@ -241,14 +241,14 @@ net spindle-locked          => not.spindle-locked.in
 net machine-is-enabled      => not.motion-enabled.in
 
 # > gear
-net spindle-on              => gear.shifter.spindle-on
+net spindle-spinena         => gear.shifter.spindle-on
 net spindle-speed-out       => gear.shifter.speed-command
 net gear.speed-out          => near.spindle-speed_ramped-speed.in1
-net gear.shifter.low-gear   => gear.engage-low-gear
-net gear.shifter.high-gear  => gear.engage-high-gear
+net gear.engage-low-gear    <= gear.shifter.low-gear
+net gear.engage-high-gear   <= gear.shifter.high-gear
 
 # > ramp spindle speed
-net gear-speed-out          => limit2.spindle-ramp.in
+net gear.speed-out          => limit2.spindle-ramp.in
 net spindle-speed-ramped    <= limit2.spindle-ramp.out                          => scale.offset-spinout-zero.in
 net machine-is-disabled     => limit2.spindle-ramp.load # immediate shut off ramping
 net spindle-speed-spinout   <= scale.offset-spinout-zero.out                    => hm2_5i25.0.7i76.0.0.spinout
@@ -259,7 +259,7 @@ net spindle-unlocked        => and2.motion-enabled_spindle-unlocked.in1
 net ext-spindle-release     <= and2.motion-enabled_spindle-unlocked.out         => and2.spindle-release_spindle-on.in0
 net spindle-on              => or2.spindle-on_spindle-ramping.in0
 # > servo enable when ramping (ramp-out)
-net gear-speed-out          => near.spindle-speed_ramped-speed.in1
+net gear.speed-out          => near.spindle-speed_ramped-speed.in1
 net spindle-speed-ramped    => near.spindle-speed_ramped-speed.in2
 net spindle-at-ramped-speed <= near.spindle-speed_ramped-speed.out              => not.spindle-at-ramped-speed.in
 net spindle-speed-ramping   <= not.spindle-at-ramped-speed.out                  => or2.spindle-on_spindle-ramping.in1

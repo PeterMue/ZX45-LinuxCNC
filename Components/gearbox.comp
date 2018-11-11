@@ -1,0 +1,58 @@
+component gearbox "A component to choose spindle gears according to spindle speed";
+pin in float speed-command;
+pin in bit spindle-on;
+pin in bit manual-low;
+pin in bit manual-high;
+pin in bit brake-enable;
+pin out float motor-speed;
+pin out bit low-gear;
+pin out bit high-gear;
+pin out bit brake;
+param rw float low-ratio=0.33333;
+param rw float high-ratio=1;
+param rw float max-low = 2500;
+
+author "andy pugh";
+license "GPL";
+function _;
+
+;;
+#include <rtapi_math.h>
+FUNCTION(_){
+    static int old_M3;
+
+    if (spindle_on) {
+        if (!old_M3){ // spindle off to on transition
+            if (manual_high) {
+                high_gear = 1;
+                low_gear = 0;
+                brake = 0;
+            }
+            else if (manual_low){
+                high_gear = 0;
+                low_gear = 1;
+                brake = 0;
+            } else if (abs(speed_command) <= max_low){
+                high_gear = 0;
+                low_gear = 1;
+                brake = 0;
+            } else {
+                high_gear = 1;
+                low_gear = 0;
+                brake = 0;
+            }
+        }
+    } else { //spindle off
+        high_gear = 0;
+        low_gear = 0;
+        brake = brake_enable;
+    }
+        
+    old_M3 = spindle_on;
+
+    if (high_gear){
+        motor_speed = speed_command * high_ratio;
+    } else if (low_gear){
+        motor_speed = speed_command * low_ratio;
+    }
+}

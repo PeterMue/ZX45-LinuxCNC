@@ -15,6 +15,7 @@ loadrt pid names=pid.x,pid.y,pid.z,pid.s
 # --- LOAD Components ---
 loadrt abs_s32          names=abs_s32.sxp
 loadrt and2             names=and2.motion-enabled_spindle-unlocked,and2.spindle-release_spindle-on,and2.sxp-a-pos,and2.sxp-a-neg,and2.sxp-z-pos,and2.sxp-z-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-x-pos,and2.sxp-x-neg
+loadrt gearbox          names=gear.shifter
 loadrt ilowpass         names=ilowpass.sxp-feed
 loadrt limit2           names=limit2.spindle-ramp
 loadrt mux2             names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
@@ -199,15 +200,16 @@ net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 
 # --- bind cycle functions ---
 # addf name                   servo-thread
+addf and2.motion-enabled_spindle-unlocked   servo-thread
+addf and2.spindle-release_spindle-on        servo-thread
+addf gear.shifter                           servo-thread
+addf limit2.spindle-ramp                    servo-thread
+addf near.spindle-speed_ramped-speed        servo-thread
 addf not.spindle-locked                     servo-thread
 addf not.spindle-at-ramped-speed            servo-thread
 addf not.motion-enabled                     servo-thread
-addf and2.motion-enabled_spindle-unlocked   servo-thread
-addf and2.spindle-release_spindle-on        servo-thread
 addf or2.spindle-on_spindle-ramping         servo-thread
-addf limit2.spindle-ramp                    servo-thread
 addf scale.offset-spinout-zero              servo-thread
-addf near.spindle-speed_ramped-speed        servo-thread
 
 # --- configure components ---
 setp limit2.spindle-ramp.maxv                   [SPINDLE_9]RAMP_MAXV
@@ -217,6 +219,10 @@ setp hm2_5i25.0.7i76.0.0.spinout-minlim         [SPINDLE_9]SPINOUT_MINLIM
 setp hm2_5i25.0.7i76.0.0.spinout-maxlim         [SPINDLE_9]SPINOUT_MAXLIM
 setp hm2_5i25.0.7i76.0.0.spinout-scalemax       [SPINDLE_9]SPINOUT_SCALEMAX     
 setp near.spindle-speed_ramped-speed.difference 1
+# > gear
+setp gear.shifter.low-ratio                          1
+setp gear.shifter.high-ratio                         0.33333333
+setp gear.shifter.max-low                            2500
 
 # --- wire some meaningful signals ---
 net machine-is-enabled      <= motion.motion-enabled
@@ -225,13 +231,24 @@ net spindle-on              <= motion.spindle-on
 net spindle-locked          <= motion.spindle-locked
 net spindle-unlocked        <= not.spindle-locked.out
 net spindle-speed-out       <= motion.spindle-speed-out
+# > gear
+net gear.engage-low-gear    <= hm2_5i25.0.7i76.0.0.output-08
+net gear.engage-high-gear   <= hm2_5i25.0.7i76.0.0.output-09
+net gear.speed-out          <= gear.shifter.motor-speed
 
 # --- wire logic ---
 net spindle-locked          => not.spindle-locked.in
 net machine-is-enabled      => not.motion-enabled.in
 
+# > gear
+net spindle-on              => gear.shifter.spindle-on
+net spindle-speed-out       => gear.shifter.speed-command
+net gear.speed-out          => near.spindle-speed_ramped-speed.in1
+net gear.shifter.low-gear   => gear.engage-low-gear
+net gear.shifter.high-gear  => gear.engage-high-gear
+
 # > ramp spindle speed
-net spindle-speed-out       => limit2.spindle-ramp.in
+net gear-speed-out          => limit2.spindle-ramp.in
 net spindle-speed-ramped    <= limit2.spindle-ramp.out                          => scale.offset-spinout-zero.in
 net machine-is-disabled     => limit2.spindle-ramp.load # immediate shut off ramping
 net spindle-speed-spinout   <= scale.offset-spinout-zero.out                    => hm2_5i25.0.7i76.0.0.spinout
@@ -242,14 +259,13 @@ net spindle-unlocked        => and2.motion-enabled_spindle-unlocked.in1
 net ext-spindle-release     <= and2.motion-enabled_spindle-unlocked.out         => and2.spindle-release_spindle-on.in0
 net spindle-on              => or2.spindle-on_spindle-ramping.in0
 # > servo enable when ramping (ramp-out)
-net spindle-speed-out       => near.spindle-speed_ramped-speed.in1
+net gear-speed-out          => near.spindle-speed_ramped-speed.in1
 net spindle-speed-ramped    => near.spindle-speed_ramped-speed.in2
 net spindle-at-ramped-speed <= near.spindle-speed_ramped-speed.out              => not.spindle-at-ramped-speed.in
 net spindle-speed-ramping   <= not.spindle-at-ramped-speed.out                  => or2.spindle-on_spindle-ramping.in1
 # > enable servo
 net spindle-on-or-ramping   <= or2.spindle-on_spindle-ramping.out               => and2.spindle-release_spindle-on.in1
 net spindle-spinena         <= and2.spindle-release_spindle-on.out              => hm2_5i25.0.7i76.0.0.spinena
-
 
 # --- pid setup ---
 setp   pid.s.Pgain                  [SPINDLE_9]P

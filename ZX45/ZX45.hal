@@ -10,7 +10,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 loadrt hostmot2
 loadrt hm2_pci config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp   hm2_5i25.0.watchdog.timeout_ns 5000000
-loadrt pid names=pid.x,pid.y,pid.z,pid.s
+loadrt pid names=pid.x,pid.y,pid.z,pid.s,pid.orient-pid
 
 # --- LOAD Components ---
 loadrt abs_s32          names=abs_s32.sxp
@@ -18,10 +18,12 @@ loadrt and2             names=and2.motion-enabled_spindle-unlocked,and2.spindle-
 loadrt gearbox          names=gear.shifter
 loadrt ilowpass         names=ilowpass.sxp-feed
 loadrt limit2           names=limit2.spindle-ramp
-loadrt mux2             names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
-loadrt near             names=near.spindle-speed_ramped-speed
+loadrt mux2             names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog,mux2.spindle-speed-or-position
+loadrt near             names=near.spindle-speed_ramped-speed,near.spindle-at-pos,near.spindle-at-speed
 loadrt not              names=not.spindle-locked,not.spindle-at-ramped-speed,not.motion-enabled
+loadrt offset           names=offset.spindle-orient-cmd
 loadrt or2              names=or2.spindle-on_spindle-ramping
+loadrt orient           names=orient.spindle
 loadrt select8          names=select8.sxp-jog-speed,select8.sxp-jog-increment
 loadrt scale            names=scale.offset-spinout-zero,scale.sxp-jog-speed
 loadrt tristate_float   names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
@@ -204,11 +206,18 @@ addf and2.motion-enabled_spindle-unlocked   servo-thread
 addf and2.spindle-release_spindle-on        servo-thread
 addf gear.shifter                           servo-thread
 addf limit2.spindle-ramp                    servo-thread
+addf mux2.spindle-speed-or-position         servo-thread
+addf near.spindle-at-speed                  servo-therad
+addf near.spindle-at-pos                    servo-therad
 addf near.spindle-speed_ramped-speed        servo-thread
 addf not.spindle-locked                     servo-thread
 addf not.spindle-at-ramped-speed            servo-thread
 addf not.motion-enabled                     servo-thread
+addf offset.spindle-orient.update-output    servo-thread
+addf offset.spindle-orient.update-feedback  servo-thread
 addf or2.spindle-on_spindle-ramping         servo-thread
+addf orient.spindle                         servo-thread
+addf pid.orient-pid.do-pid-calcs            servo-thread
 addf scale.offset-spinout-zero              servo-thread
 
 # --- configure components ---
@@ -249,7 +258,7 @@ net gear.shifter.high-gear  => gear.engage-high-gear
 
 # > ramp spindle speed
 net gear-speed-out          => limit2.spindle-ramp.in
-net spindle-speed-ramped    <= limit2.spindle-ramp.out                          => scale.offset-spinout-zero.in
+net spindle-speed-ramped    <= limit2.spindle-ramp.out                          => mux2.spindle-speed-or-position.in0
 net machine-is-disabled     => limit2.spindle-ramp.load # immediate shut off ramping
 net spindle-speed-spinout   <= scale.offset-spinout-zero.out                    => hm2_5i25.0.7i76.0.0.spinout
 
@@ -266,6 +275,7 @@ net spindle-speed-ramping   <= not.spindle-at-ramped-speed.out                  
 # > enable servo
 net spindle-on-or-ramping   <= or2.spindle-on_spindle-ramping.out               => and2.spindle-release_spindle-on.in1
 net spindle-spinena         <= and2.spindle-release_spindle-on.out              => hm2_5i25.0.7i76.0.0.spinena
+
 
 # --- pid setup ---
 setp   pid.s.Pgain                  [SPINDLE_9]P
@@ -287,6 +297,31 @@ setp hm2_5i25.0.encoder.00.index-invert      0
 setp hm2_5i25.0.encoder.00.index-mask        0
 setp hm2_5i25.0.encoder.00.index-mask-invert 0
 setp hm2_5i25.0.encoder.00.scale             [SPINDLE_9]ENCODER_SCALE
+# > encoder signals
+net spindle.encoder.velocity        <= hm2_5i25.0.encoder.00.velocity
+net spindle.encoder.count           <= hm2_5i25.0.encoder.00.count
+net spindle.encoder.index-enable    <= hm2_5i25.0.encoder.00.index-enable
+net spindle.encoder.position        <= hm2_5i25.0.encoder.00.position
+
+# spindle orient
+net speed-out-rps                   <= motion.spindle-speed-out-rps         => near.spindle-at-speed.in1
+net spindle.encoder.velocity        => near.spindle-at-speed.in2
+net spindle.encoder.velocity        => motion.spindle-speed-in
+net spindle-at-speed                <= near.spindle-at-speed                => motion.spindle-at-speed
+net spindle.encoder.index-enable    => motion.spindle-index-enable
+net spindle.encoder.position        => motion.spindle-revs
+net spindle.encoder.position        => orient.spindle.position
+net spindle.encoder.position        => pid.orient-pid.feedback
+
+net orient-pos-cmd                  <= orient.spindle.command               => offset.spindle-orient-cmd.in
+net orient-pos-cmd-offset           <= offset.spindle-orient-cmd.out        => pid.orient-pid.command
+
+net orient-pid-error                <= pid.orient-pid.error                 => near.spindle-at-pos.in2
+net spindle-at-pos                  <= near.spindle-at-pos                  # spindle pos
+
+net orient-pid-output               <= pid.orient-pid.output                => scale.offset-spinout-zero.in
+
+
 
 # ---Setup spindle at speed signals---
 

@@ -198,6 +198,7 @@ net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 # addf name                   servo-thread
 addf limit2.spindle-ramp                        servo-thread
 addf near.spindle-at-speed                      servo-thread
+addf gear.shifter                               servo-thread
 
 
 # --- configure components ---
@@ -229,15 +230,29 @@ setp pid.s.maxerror                             10 # check this out!
 setp limit2.spindle-ramp.maxv                   [SPINDLE_9]RAMP_MAXV
 # > at speed
 setp near.spindle-at-speed.difference           [SPINDLE_9]SPINDLE_SPEED_MAX_ERROR
+# > gear shift
+setp gear.shifter.low-ratio                     [SPINDLE_9]GEAR_RATIO_LOW
+setp gear.shifter.high-ratio                    [SPINDLE_9]GEAR_RATIO_HIGH
+setp gear.shifter.max-low                       [SPINDLE_9]GEAR_LOW_MAX_SPEED
+
 
 # --- wire
-net spindle.enable              <= motion.spindle-on                => hm2_5i25.0.7i76.0.0.spinena          => pid.s.enable         
-net spindle.index-enable       <=> motion.spindle-index-enable     <=> hm2_5i25.0.encoder.00.index-enable   => pid.s.index-enable
+net spindle.enable              <= motion.spindle-on                => pid.s.enable         
+# > gear shift
+net spindle.enable              => gear.shifter.spindle-on
+net spindle.vel-cmd-rps         <= motion.spindle-speed-out-rps     => gear.shifter.speed-command
+net spindle.gear-vel-cmd-rps    <= gear.shifter.motor-speed         => limit2.spindle-ramp.in
+net gear.engage-low-gear        <= gear.shifter.low-gear            => hm2_5i25.0.7i76.0.0.output-08
+net gear.engage-high-gear       <= gear.shifter.high-gear           => hm2_5i25.0.7i76.0.0.output-09
+# > ramp 
+net spindle.ramp-vel-cmd-rps    <= limit2.spindle-ramp.out          => pid.s.command
+# > feedback loop
 net spindle.vel-fb              <= hm2_5i25.0.encoder.00.velocity   => motion.spindle-speed-in              => pid.s.feedback
 net spindle.revs                <= hm2_5i25.0.encoder.00.position   => motion.spindle-revs
-net spindle.vel-cmd-rps         <= motion.spindle-speed-out-rps     => limit2.spindle-ramp.in
-net spindle.ramp-vel-cmd-rps    <= limit2.spindle-ramp.out          => pid.s.command
+net spindle.index-enable       <=> motion.spindle-index-enable     <=> hm2_5i25.0.encoder.00.index-enable   => pid.s.index-enable
+# > servo output
 net spindle.spinout             <= pid.s.output                     => hm2_5i25.0.7i76.0.0.spinout
+net spindle.enable              => hm2_5i25.0.7i76.0.0.spinena
 # > at speed
 net spindle.vel-cmd-rps         => near.spindle-at-speed.in1
 net spindle.vel-fb              => near.spindle-at-speed.in2

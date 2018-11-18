@@ -196,9 +196,9 @@ net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 
 # --- bind cycle functions ---
 # addf name                   servo-thread
-addf scale.offset-spinout-zero              servo-thread
-addf sum2.spindle-vel-cmd                   servo-thread
-addf limit2.spindle-ramp                    servo-thread
+addf limit2.spindle-ramp                        servo-thread
+addf near.spindle-at-speed                      servo-thread
+
 
 # --- configure components ---
 setp scale.offset-spinout-zero.gain             1
@@ -227,6 +227,8 @@ setp pid.s.error-previous-target                true
 setp pid.s.maxerror                             10 # check this out!
 # > acceleration
 setp limit2.spindle-ramp.maxv                   [SPINDLE_9]RAMP_MAXV
+# > at speed
+setp near.spindle-at-speed.difference           [SPINDLE_9]SPINDLE_SPEED_MAX_ERROR
 
 # --- wire
 net spindle.enable              <= motion.spindle-on                => hm2_5i25.0.7i76.0.0.spinena          => pid.s.enable         
@@ -236,6 +238,10 @@ net spindle.revs                <= hm2_5i25.0.encoder.00.position   => motion.sp
 net spindle.vel-cmd-rps         <= motion.spindle-speed-out-rps     => limit2.spindle-ramp.in
 net spindle.ramp-vel-cmd-rps    <= limit2.spindle-ramp.out          => pid.s.command
 net spindle.spinout             <= pid.s.output                     => hm2_5i25.0.7i76.0.0.spinout
+# > at speed
+net spindle.vel-cmd-rps         => near.spindle-at-speed.in1
+net spindle.vel-fb              => near.spindle-at-speed.in2
+net spindle.at-speed            <= near.spindle-at-speed.out        => motion.spindle-at-speed
 
 
 #******************************

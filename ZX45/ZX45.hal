@@ -14,6 +14,7 @@ loadrt pid names=pid.x,pid.y,pid.z,pid.s,pid.orient
 
 # --- LOAD Components ---
 loadrt abs_s32          names=abs_s32.sxp
+loadrt abs              names=abs.spindle-trans-vel-fb-rpm-abs
 loadrt and2             names=and2.motion-enabled_spindle-unlocked,and2.spindle-release_spindle-on,and2.sxp-a-pos,and2.sxp-a-neg,and2.sxp-z-pos,and2.sxp-z-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-x-pos,and2.sxp-x-neg
 loadrt gearbox          names=gear.shifter
 loadrt ilowpass         names=ilowpass.sxp-feed
@@ -25,7 +26,7 @@ loadrt offset           names=offset.spindle-orient
 loadrt or2              names=or2.spindle-on_spindle-ramping,or2.spindle-speed-or-spindle-orient
 loadrt orient           names=orient.spindle
 loadrt select8          names=select8.sxp-jog-speed,select8.sxp-jog-increment
-loadrt scale            names=scale.offset-spinout-zero,scale.sxp-jog-speed
+loadrt scale            names=scale.spindle-vel-fb-rpm,scale.spindle-trans-vel-fb-rpm,scale.sxp-jog-speed
 loadrt sum2             names=sum2.spindle-vel-cmd
 loadrt tristate_float   names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
 loadrt updown           names=updown.sxp-feed-cycle
@@ -199,11 +200,12 @@ net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 addf limit2.spindle-ramp                        servo-thread
 addf near.spindle-at-speed                      servo-thread
 addf gear.shifter                               servo-thread
+addf scale.spindle-vel-fb-rpm                   servo-thread
+addf scale.spindle-trans-vel-fb-rpm             servo-thread
+addf abs.spindle-trans-vel-fb-rpm-abs           servo-thread
 
 
 # --- configure components ---
-setp scale.offset-spinout-zero.gain             1
-setp scale.offset-spinout-zero.offset           [SPINDLE_9]SPINOUT_ZERO_OFFSET
 setp hm2_5i25.0.7i76.0.0.spinout-minlim         [SPINDLE_9]SPINOUT_MINLIM
 setp hm2_5i25.0.7i76.0.0.spinout-maxlim         [SPINDLE_9]SPINOUT_MAXLIM
 setp hm2_5i25.0.7i76.0.0.spinout-scalemax       [SPINDLE_9]SPINOUT_SCALEMAX     
@@ -214,6 +216,8 @@ setp hm2_5i25.0.encoder.00.index-invert         0
 setp hm2_5i25.0.encoder.00.index-mask           0
 setp hm2_5i25.0.encoder.00.index-mask-invert    0
 setp hm2_5i25.0.encoder.00.scale                [SPINDLE_9]ENCODER_SCALE
+setp scale.spindle-vel-fb-rpm.gain              60
+setp scale.spindle-trans-vel-fb-rpm.gain        60
 # > pid
 setp pid.s.Pgain                                [SPINDLE_9]P 
 setp pid.s.Igain                                [SPINDLE_9]I
@@ -247,7 +251,12 @@ net gear.engage-high-gear       <= gear.shifter.high-gear           => hm2_5i25.
 # > ramp 
 net spindle.ramp-vel-cmd-rps    <= limit2.spindle-ramp.out          => pid.s.command
 # > feedback loop
-net spindle.vel-fb              <= hm2_5i25.0.encoder.00.velocity   => motion.spindle-speed-in              => pid.s.feedback
+net spindle.vel-fb              <= hm2_5i25.0.encoder.00.velocity   => motion.spindle-speed-in          => pid.s.feedback
+net spindle.vel-fb              => scale.spindle-vel-fb-rpm.in      => gear.shifter.motor-feedback
+net spindle.vel-fb-rpm          <= scale.spindle-vel-fb-rpm.out
+net spindle.trans-vel-fb        <= gear.shifter.calculated-spindle-feedback                             => scale.spindle-trans-vel-fb-rpm.in      
+net spindle.trans-vel-fb-rpm    <= scale.spindle-trans-vel-fb-rpm.out                                   => abs.spindle-trans-vel-fb-rpm-abs.in
+net spindle.trans-vel-fb-rpm-abs <= abs.spindle-trans-vel-fb-rpm-abs.out
 net spindle.revs                <= hm2_5i25.0.encoder.00.position   => motion.spindle-revs
 net spindle.index-enable       <=> motion.spindle-index-enable     <=> hm2_5i25.0.encoder.00.index-enable   => pid.s.index-enable
 # > servo output

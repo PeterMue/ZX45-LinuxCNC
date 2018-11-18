@@ -1,0 +1,30 @@
+# Spindle
+net spindle.trans-vel-fb-rpm-abs    => gladevcp.spindle.spindle-speed-meter
+net spindle.vel-fb-rpm              => gladevcp.spindle.motor-speed-meter
+
+# Gear
+net gear.engage-low-gear    => gladevcp.gear.low-gear-led
+net gear.force-manual-low   <= gladevcp.gear.manual-low     => gear.shifter.manual-low
+
+net gear.engage-high-gear   => gladevcp.gear.high-gear-led
+net gear.force-manual-high  <= gladevcp.gear.manual-high    => gear.shifter.manual-high
+
+# Info
+net spindle.enable          => gladevcp.spindle.enabled-led
+net spindle.at-speed        => gladevcp.spindle.at-speed-led
+net spindle.brake           <= motion.spindle-brake                 => gladevcp.spindle.brake-led
+#net gear-state-low  gladevcp.hal_gear-led-low   <= hm2_5i25.0.7i76.0.0.output-08
+#net gear-state-high gladevcp.hal_gear-led-high  <= hm2_5i25.0.7i76.0.0.output-09
+
+#net gear-state-low  gladevcp.hal_gear-select-low    => hm2_5i25.0.7i76.0.0.output-08
+#net gear-state-high gladevcp.hal_gear-select-high   => hm2_5i25.0.7i76.0.0.output-09
+
+
+# PID Tune
+net pid-s-Pgain                                 <= gladevcp.pid.Pgain-f     => pid.s.Pgain
+net pid-s-Igain                                 <= gladevcp.pid.Igain-f     => pid.s.Igain
+net pid-s-Dgain                                 <= gladevcp.pid.Dgain-f     => pid.s.Dgain
+net pid-s-FF0                                   <= gladevcp.pid.FF0-f       => pid.s.FF0
+net pid-s-FF1                                   <= gladevcp.pid.FF1-f       => pid.s.FF1
+net pid-s-FF2                                   <= gladevcp.pid.FF2-f       => pid.s.FF2
+net pid-s-bias                                  <= gladevcp.pid.bias-f      => pid.s.bias

@@ -4,7 +4,9 @@ pin in bit spindle-on;
 pin in bit manual-low;
 pin in bit manual-high;
 pin in bit brake-enable;
+pin in float motor-feedback;
 pin out float motor-speed;
+pin out float calculated-spindle-feedback;
 pin out bit low-gear;
 pin out bit high-gear;
 pin out bit brake;
@@ -46,13 +48,16 @@ FUNCTION(_){
         high_gear = 0;
         low_gear = 0;
         brake = brake_enable;
+        calculated_spindle_feedback = 0;
     }
         
     old_M3 = spindle_on;
 
     if (high_gear){
         motor_speed = speed_command * high_ratio;
+        calculated_spindle_feedback = motor_feedback / high_ratio;
     } else if (low_gear){
         motor_speed = speed_command * low_ratio;
+        calculated_spindle_feedback = motor_feedback / low_ratio;
     }
 }

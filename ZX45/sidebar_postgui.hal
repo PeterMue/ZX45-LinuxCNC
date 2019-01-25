@@ -21,13 +21,3 @@ net spindle.brake           <= motion.spindle-brake                 => gladevcp.
 
 # Drawbar
 net drawbar.open            <= gladevcp.drawbar.open    => hm2_5i25.0.7i76.0.0.output-10
-
-
-# PID Tune
-net pid-s-Pgain                                 <= gladevcp.pid.Pgain-f     => pid.s.Pgain
-net pid-s-Igain                                 <= gladevcp.pid.Igain-f     => pid.s.Igain
-net pid-s-Dgain                                 <= gladevcp.pid.Dgain-f     => pid.s.Dgain
-net pid-s-FF0                                   <= gladevcp.pid.FF0-f       => pid.s.FF0
-net pid-s-FF1                                   <= gladevcp.pid.FF1-f       => pid.s.FF1
-net pid-s-FF2                                   <= gladevcp.pid.FF2-f       => pid.s.FF2
-net pid-s-bias                                  <= gladevcp.pid.bias-f      => pid.s.bias

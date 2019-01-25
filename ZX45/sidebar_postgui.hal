@@ -19,6 +19,9 @@ net spindle.brake           <= motion.spindle-brake                 => gladevcp.
 #net gear-state-low  gladevcp.hal_gear-select-low    => hm2_5i25.0.7i76.0.0.output-08
 #net gear-state-high gladevcp.hal_gear-select-high   => hm2_5i25.0.7i76.0.0.output-09
 
+# Drawbar
+net drawbar.open            <= gladevcp.drawbar.open    => hm2_5i25.0.7i76.0.0.output-10
+
 
 # PID Tune
 net pid-s-Pgain                                 <= gladevcp.pid.Pgain-f     => pid.s.Pgain

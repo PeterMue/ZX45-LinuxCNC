@@ -246,8 +246,8 @@ net spindle.enable              <= motion.spindle-on                => pid.s.ena
 net spindle.enable              => gear.shifter.spindle-on
 net spindle.vel-cmd-rps         <= motion.spindle-speed-out-rps     => gear.shifter.speed-command
 net spindle.gear-vel-cmd-rps    <= gear.shifter.motor-speed         => limit2.spindle-ramp.in
-net gear.engage-low-gear        <= gear.shifter.low-gear            => hm2_5i25.0.7i76.0.0.output-08
-net gear.engage-high-gear       <= gear.shifter.high-gear           => hm2_5i25.0.7i76.0.0.output-09
+net gear.engage-low-gear        <= gear.shifter.low-gear            => hm2_5i25.0.7i76.0.0.output-09
+net gear.engage-high-gear       <= gear.shifter.high-gear           => hm2_5i25.0.7i76.0.0.output-08
 # > ramp 
 net spindle.ramp-vel-cmd-rps    <= limit2.spindle-ramp.out          => pid.s.command
 # > feedback loop

@@ -21,3 +21,10 @@ net spindle.brake           <= motion.spindle-brake                 => gladevcp.
 
 # Drawbar
 net drawbar.open            <= gladevcp.drawbar.open    => hm2_5i25.0.7i76.0.0.output-10
+
+# Probe
+net probe-err-counter-start <= gladevcp.probe-err-counter-start
+net probe-err-counts        <= encoder.probe-err-counter.counts => gladevcp.probe-err-counter
+net probe-err-timer-hours   <= time.probe-err-timer.hours       => gladevcp.probe-err-time-hours
+net probe-err-timer-minutes <= time.probe-err-timer.minutes     => gladevcp.probe-err-time-minutes
+net probe-err-timer-seconds <= time.probe-err-timer.seconds     => gladevcp.probe-err-time-seconds

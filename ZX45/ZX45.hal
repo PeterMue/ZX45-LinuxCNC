@@ -30,6 +30,9 @@ loadrt scale            names=scale.spindle-vel-fb-rpm,scale.spindle-trans-vel-f
 loadrt sum2             names=sum2.spindle-vel-cmd
 loadrt tristate_float   names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
 loadrt updown           names=updown.sxp-feed-cycle
+loadrt encoder          names=encoder.probe-err-counter
+loadrt time             names=time.probe-err-timer
+loadrt oneshot          names=oneshot.probe-err
 
 
 #*******************
@@ -264,7 +267,7 @@ net spindle.spinout             <= pid.s.output                     => hm2_5i25.
 net spindle.enable              => hm2_5i25.0.7i76.0.0.spinena
 # > at speed
 net spindle.vel-cmd-rps         => near.spindle-at-speed.in1
-net spindle.vel-fb              => near.spindle-at-speed.in2
+net spindle.trans-vel-fb        => near.spindle-at-speed.in2
 net spindle.at-speed            <= near.spindle-at-speed.out        => motion.spindle-at-speed
 
 
@@ -523,3 +526,18 @@ net sxp.counts-smooth   => axis.1.jog-counts
 net sxp.counts-smooth   => axis.2.jog-counts
 #net sxp.counts-smooth   => axis.0.jog-counts
 
+#*******************
+# Touch Probe
+#*******************
+addf encoder.update-counters    servo-thread
+addf encoder.capture-position   servo-thread
+addf time.probe-err-timer       servo-thread
+addf oneshot.probe-err          servo-thread
+
+setp encoder.probe-err-counter.counter-mode     1
+setp oneshot.probe-err.width                    1
+
+net probe-in                   <=  hm2_5i25.0.7i76.0.0.input-31-not
+net probe-err                  =>  encoder.probe-err-counter.phase-A    <= hm2_5i25.0.7i76.0.0.input-30-not
+net probe-err-counter-start    => oneshot.probe-err.in                  => time.probe-err-timer.start
+net probe-err-reset            <= oneshot.probe-err.out                 => encoder.probe-err-counter.reset

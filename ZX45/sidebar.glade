@@ -6,108 +6,94 @@
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="vbox2">
+      <object class="GtkVBox" id="main">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GtkHBox" id="hbox1">
+          <object class="GtkVBox" id="vboxspindelgear">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkVBox" id="vbox5">
+              <object class="GtkFrame" id="Spindle">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkFrame" id="Spindle">
+                  <object class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">none</property>
+                    <property name="yalign">0</property>
+                    <property name="left_padding">12</property>
+                    <property name="right_padding">5</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment1">
+                      <object class="GtkVBox" id="vboxspeedo">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="yalign">0</property>
-                        <property name="left_padding">12</property>
-                        <property name="right_padding">5</property>
+                        <property name="spacing">10</property>
                         <child>
-                          <object class="GtkHBox" id="hbox2">
+                          <object class="HAL_Meter" id="spindle.spindle-speed-meter">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="spacing">10</property>
-                            <child>
-                              <object class="HAL_Meter" id="spindle.spindle-speed-meter">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="bg_color">#ffffffffffff</property>
-                                <property name="force_size">300</property>
-                                <property name="label">Spindle</property>
-                                <property name="majorscale">750</property>
-                                <property name="max">7500</property>
-                                <property name="minorscale">100</property>
-                                <property name="sublabel">RPM</property>
-                                <property name="text_template">%d</property>
-                                <property name="z0_border">2500</property>
-                                <property name="z0_color">#0000b8f35c33</property>
-                                <property name="z1_border">6000</property>
-                                <property name="z1_color">#6cf0ffff0000</property>
-                                <property name="z2_color">#cc5bffff0000</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="HAL_VBar" id="spindle.motor-speed-meter">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="bg_color">#bebebebebebe</property>
-                                <property name="force_height">300</property>
-                                <property name="force_width">50</property>
-                                <property name="max">2500</property>
-                                <property name="min">-2500</property>
-                                <property name="target_color">#555555555555</property>
-                                <property name="target_value">0.0099999997764825821</property>
-                                <property name="target_width">1</property>
-                                <property name="text_template">%d</property>
-                                <property name="z0_border">0.89999997615814209</property>
-                                <property name="z0_color">#0000ffff0000</property>
-                                <property name="z1_color">#ffffffff0000</property>
-                                <property name="z2_color">#ffff00000000</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="bg_color">#ffffffffffff</property>
+                            <property name="force_size">300</property>
+                            <property name="label">Spindle</property>
+                            <property name="majorscale">750</property>
+                            <property name="max">7500</property>
+                            <property name="minorscale">100</property>
+                            <property name="sublabel">RPM</property>
+                            <property name="text_template">%d</property>
+                            <property name="z0_border">2500</property>
+                            <property name="z0_color">#0000b8f35c33</property>
+                            <property name="z1_border">6000</property>
+                            <property name="z1_color">#6cf0ffff0000</property>
+                            <property name="z2_color">#cc5bffff0000</property>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_HBar" id="spindle.motor-speed-meter">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="bg_color">#bebebebebebe</property>
+                            <property name="force_height">50</property>
+                            <property name="force_width">300</property>
+                            <property name="max">2500</property>
+                            <property name="min">-2500</property>
+                            <property name="target_color">#555555555555</property>
+                            <property name="target_value">0.0099999997764825821</property>
+                            <property name="target_width">1</property>
+                            <property name="text_template">%d</property>
+                            <property name="z0_border">0.89999997615814209</property>
+                            <property name="z0_color">#0000ffff0000</property>
+                            <property name="z1_color">#ffffffff0000</property>
+                            <property name="z2_color">#ffff00000000</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="spindleFrameLogo">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Spindle&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
-                <child>
-                  <placeholder/>
+                <child type="label">
+                  <object class="GtkLabel" id="spindleFrameLogo">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Spindle&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
@@ -425,10 +411,7 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <object class="GtkAlignment" id="alignment5">
+          <object class="GtkAlignment" id="drawbar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="top_padding">10</property>
@@ -438,7 +421,7 @@
             <child>
               <object class="HAL_ToggleButton" id="drawbar.open">
                 <property name="label" translatable="yes">Open Drawbar</property>
-                <property name="height_request">50</property>
+                <property name="height_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="receives_default">True</property>
@@ -450,39 +433,115 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hbox8">
+          <object class="GtkFrame" id="frame1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
             <child>
-              <object class="GtkHBox" id="hbox9">
+              <object class="GtkVBox" id="probe-errors">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="HAL_Label" id="probe-err-time-hours">
+                  <object class="GtkHBox" id="hbox8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">hh</property>
-                    <property name="label_pin_type">2</property>
-                    <property name="text_template">Time: %s</property>
+                    <child>
+                      <object class="GtkHBox" id="hbox9">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="HAL_Label" id="probe-err-time-hours">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xalign">1</property>
+                            <property name="label" translatable="yes">hh</property>
+                            <property name="label_pin_type">2</property>
+                            <property name="text_template">Time: %s</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="probe-err-time-minutes">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">mm</property>
+                            <property name="label_pin_type">2</property>
+                            <property name="text_template">:%s:</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="probe-err-time-seconds">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">ss</property>
+                            <property name="label_pin_type">2</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Label" id="probe-err-counter">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">0</property>
+                        <property name="text_template">%s Errors</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="HAL_Label" id="probe-err-time-minutes">
+                  <object class="GtkAlignment" id="alignment4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">mm</property>
-                    <property name="label_pin_type">2</property>
-                    <property name="text_template">:%s:</property>
+                    <property name="top_padding">10</property>
+                    <property name="bottom_padding">10</property>
+                    <property name="left_padding">50</property>
+                    <property name="right_padding">50</property>
+                    <child>
+                      <object class="HAL_ToggleButton" id="probe-err-counter-start">
+                        <property name="label" translatable="yes">Count Probe Errors</property>
+                        <property name="height_request">20</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="use_action_appearance">False</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -490,74 +549,22 @@
                     <property name="position">1</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="HAL_Label" id="probe-err-time-seconds">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">ss</property>
-                    <property name="label_pin_type">2</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
-            <child>
-              <object class="HAL_Label" id="probe-err-counter">
+            <child type="label">
+              <object class="GtkLabel" id="Probe Wireless Errors">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">0</property>
-                <property name="text_template">%s Errors</property>
+                <property name="label" translatable="yes">&lt;b&gt;Probe Wireless Errors1&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkAlignment" id="alignment4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="top_padding">10</property>
-                <property name="bottom_padding">10</property>
-                <property name="left_padding">50</property>
-                <property name="right_padding">50</property>
-                <child>
-                  <object class="HAL_ToggleButton" id="probe-err-counter-start">
-                    <property name="label" translatable="yes">Count Probe Errors</property>
-                    <property name="height_request">20</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">2</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
       </object>
     </child>

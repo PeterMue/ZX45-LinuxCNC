@@ -1,0 +1,19 @@
+[DEFAULT]
+use_toolmeasurement = False
+chk_set_zero = False
+chk_auto_rott = False
+ps_searchvel = 500.0
+ps_probevel = 10.0
+ps_z_clearance = 10.0
+ps_probe_max = 3.0
+ps_probe_latch = 0.5
+ps_probe_diam = 2.0
+ps_xy_clearance = 3.0
+ps_edge_lenght = 18.0
+ps_offs_x = 0.0
+ps_offs_y = 0.0
+ps_offs_z = 0.0
+ps_offs_angle = -12.8438828469
+probeheight = 0.0
+blockheight = 0.0
+

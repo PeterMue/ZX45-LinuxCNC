@@ -2,3 +2,4 @@
 
 source custom_postgui.hal
 source sidebar_postgui.hal
+source probe_postgui.hal

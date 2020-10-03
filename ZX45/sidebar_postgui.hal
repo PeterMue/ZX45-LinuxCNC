@@ -12,7 +12,9 @@ net gear.force-manual-high  <= gladevcp.gear.manual-high    => gear.shifter.manu
 # Info
 net spindle.enable          => gladevcp.spindle.enabled-led
 net spindle.at-speed        => gladevcp.spindle.at-speed-led
-net spindle.brake           <= motion.spindle-brake                 => gladevcp.spindle.brake-led
+# TODO: Pin is missing since 2.8?
+# net spindle.brake           <= motion.spindle-brake                 => gladevcp.spindle.brake-led
+
 #net gear-state-low  gladevcp.hal_gear-led-low   <= hm2_5i25.0.7i76.0.0.output-08
 #net gear-state-high gladevcp.hal_gear-led-high  <= hm2_5i25.0.7i76.0.0.output-09
 

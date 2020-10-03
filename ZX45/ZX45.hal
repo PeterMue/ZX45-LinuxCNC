@@ -5,8 +5,9 @@
 # Source: github.com/PeterMue/ZX45-CNC
 #
 
-loadrt trivkins
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [KINS]KINEMATICS
+#autoconverted  trivkins
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS 
 loadrt hostmot2
 loadrt hm2_pci config=" num_encoders=5 num_pwmgens=0 num_stepgens=5 sserial_port_0=00xxxx" 
 setp   hm2_5i25.0.watchdog.timeout_ns 5000000
@@ -53,28 +54,28 @@ addf hm2_5i25.0.write         servo-thread
 #*******************
 
 # --- pid setup ---
-setp pid.x.Pgain                    [AXIS_0]P
-setp pid.x.Igain                    [AXIS_0]I
-setp pid.x.Dgain                    [AXIS_0]D
-setp pid.x.bias                     [AXIS_0]BIAS
-setp pid.x.FF0                      [AXIS_0]FF0
-setp pid.x.FF1                      [AXIS_0]FF1
-setp pid.x.FF2                      [AXIS_0]FF2
-setp pid.x.deadband                 [AXIS_0]DEADBAND
-setp pid.x.maxoutput                [AXIS_0]MAX_OUTPUT
+setp pid.x.Pgain                    [JOINT_0]P
+setp pid.x.Igain                    [JOINT_0]I
+setp pid.x.Dgain                    [JOINT_0]D
+setp pid.x.bias                     [JOINT_0]BIAS
+setp pid.x.FF0                      [JOINT_0]FF0
+setp pid.x.FF1                      [JOINT_0]FF1
+setp pid.x.FF2                      [JOINT_0]FF2
+setp pid.x.deadband                 [JOINT_0]DEADBAND
+setp pid.x.maxoutput                [JOINT_0]MAX_OUTPUT
 setp pid.x.error-previous-target    true
 setp pid.x.maxerror                 .0005
 
 # --- stepgen setup ---
-setp hm2_5i25.0.stepgen.00.dirsetup         [AXIS_0]DIRSETUP
-setp hm2_5i25.0.stepgen.00.dirhold          [AXIS_0]DIRHOLD
-setp hm2_5i25.0.stepgen.00.steplen          [AXIS_0]STEPLEN
-setp hm2_5i25.0.stepgen.00.stepspace        [AXIS_0]STEPSPACE
-setp hm2_5i25.0.stepgen.00.position-scale   [AXIS_0]STEP_SCALE
+setp hm2_5i25.0.stepgen.00.dirsetup         [JOINT_0]DIRSETUP
+setp hm2_5i25.0.stepgen.00.dirhold          [JOINT_0]DIRHOLD
+setp hm2_5i25.0.stepgen.00.steplen          [JOINT_0]STEPLEN
+setp hm2_5i25.0.stepgen.00.stepspace        [JOINT_0]STEPSPACE
+setp hm2_5i25.0.stepgen.00.position-scale   [JOINT_0]STEP_SCALE
 setp hm2_5i25.0.stepgen.00.step_type        0
 setp hm2_5i25.0.stepgen.00.control-type     1
-setp hm2_5i25.0.stepgen.00.maxaccel         [AXIS_0]STEPGEN_MAXACCEL
-setp hm2_5i25.0.stepgen.00.maxvel           [AXIS_0]STEPGEN_MAXVEL
+setp hm2_5i25.0.stepgen.00.maxaccel         [JOINT_0]STEPGEN_MAXACCEL
+setp hm2_5i25.0.stepgen.00.maxvel           [JOINT_0]STEPGEN_MAXVEL
 
 # --- encoder setup ---
 setp hm2_5i25.0.encoder.02.counter-mode      0
@@ -82,47 +83,47 @@ setp hm2_5i25.0.encoder.02.filter            1
 setp hm2_5i25.0.encoder.02.index-invert      0
 setp hm2_5i25.0.encoder.02.index-mask        0
 setp hm2_5i25.0.encoder.02.index-mask-invert 0
-setp hm2_5i25.0.encoder.02.scale             [AXIS_0]ENCODER_SCALE
+setp hm2_5i25.0.encoder.02.scale             [JOINT_0]ENCODER_SCALE
 
 # --- connections ---
 # axis movement
-net x-index-enable  <=> pid.x.index-enable  <=> axis.0.index-enable     <=> hm2_5i25.0.encoder.02.index-enable
-net x-enable        =>  pid.x.enable         => axis.0.amp-enable-out    => hm2_5i25.0.stepgen.00.enable
-net x-pos-cmd       =>  axis.0.motor-pos-cmd => pid.x.command
-net x-pos-fb        =>  hm2_5i25.0.encoder.02.position => pid.x.feedback => axis.0.motor-pos-fb
+net x-index-enable  <=> pid.x.index-enable  <=> joint.0.index-enable     <=> hm2_5i25.0.encoder.02.index-enable
+net x-enable        =>  pid.x.enable         => joint.0.amp-enable-out    => hm2_5i25.0.stepgen.00.enable
+net x-pos-cmd       =>  joint.0.motor-pos-cmd => pid.x.command
+net x-pos-fb        =>  hm2_5i25.0.encoder.02.position => pid.x.feedback => joint.0.motor-pos-fb
 net x-output        =>  pid.x.output         => hm2_5i25.0.stepgen.00.velocity-cmd
 # home & limit
-net home-x          =>  axis.0.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-02-not
-net min-x           =>  axis.0.neg-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-00-not
-net max-x           =>  axis.0.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-01-not
+net home-x          =>  joint.0.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-02-not
+net min-x           =>  joint.0.neg-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-00-not
+net max-x           =>  joint.0.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-01-not
 
 #*******************
 #  AXIS Y
 #*******************
 
 # --- pid setup ---
-setp pid.y.Pgain                    [AXIS_1]P
-setp pid.y.Igain                    [AXIS_1]I
-setp pid.y.Dgain                    [AXIS_1]D
-setp pid.y.bias                     [AXIS_1]BIAS
-setp pid.y.FF0                      [AXIS_1]FF0
-setp pid.y.FF1                      [AXIS_1]FF1
-setp pid.y.FF2                      [AXIS_1]FF2
-setp pid.y.deadband                 [AXIS_1]DEADBAND
-setp pid.y.maxoutput                [AXIS_1]MAX_OUTPUT
+setp pid.y.Pgain                    [JOINT_1]P
+setp pid.y.Igain                    [JOINT_1]I
+setp pid.y.Dgain                    [JOINT_1]D
+setp pid.y.bias                     [JOINT_1]BIAS
+setp pid.y.FF0                      [JOINT_1]FF0
+setp pid.y.FF1                      [JOINT_1]FF1
+setp pid.y.FF2                      [JOINT_1]FF2
+setp pid.y.deadband                 [JOINT_1]DEADBAND
+setp pid.y.maxoutput                [JOINT_1]MAX_OUTPUT
 setp pid.y.error-previous-target    true
 setp pid.y.maxerror                 .0005
 
 # --- stepgen setup ---
-setp hm2_5i25.0.stepgen.01.dirsetup         [AXIS_1]DIRSETUP
-setp hm2_5i25.0.stepgen.01.dirhold          [AXIS_1]DIRHOLD
-setp hm2_5i25.0.stepgen.01.steplen          [AXIS_1]STEPLEN
-setp hm2_5i25.0.stepgen.01.stepspace        [AXIS_1]STEPSPACE
-setp hm2_5i25.0.stepgen.01.position-scale   [AXIS_1]STEP_SCALE
+setp hm2_5i25.0.stepgen.01.dirsetup         [JOINT_1]DIRSETUP
+setp hm2_5i25.0.stepgen.01.dirhold          [JOINT_1]DIRHOLD
+setp hm2_5i25.0.stepgen.01.steplen          [JOINT_1]STEPLEN
+setp hm2_5i25.0.stepgen.01.stepspace        [JOINT_1]STEPSPACE
+setp hm2_5i25.0.stepgen.01.position-scale   [JOINT_1]STEP_SCALE
 setp hm2_5i25.0.stepgen.01.step_type        0
 setp hm2_5i25.0.stepgen.01.control-type     1
-setp hm2_5i25.0.stepgen.01.maxaccel         [AXIS_1]STEPGEN_MAXACCEL
-setp hm2_5i25.0.stepgen.01.maxvel           [AXIS_1]STEPGEN_MAXVEL
+setp hm2_5i25.0.stepgen.01.maxaccel         [JOINT_1]STEPGEN_MAXACCEL
+setp hm2_5i25.0.stepgen.01.maxvel           [JOINT_1]STEPGEN_MAXVEL
 
 # --- encoder setup ---
 setp hm2_5i25.0.encoder.03.counter-mode      0
@@ -130,33 +131,33 @@ setp hm2_5i25.0.encoder.03.filter            1
 setp hm2_5i25.0.encoder.03.index-invert      0
 setp hm2_5i25.0.encoder.03.index-mask        0
 setp hm2_5i25.0.encoder.03.index-mask-invert 0
-setp hm2_5i25.0.encoder.03.scale             [AXIS_1]ENCODER_SCALE
+setp hm2_5i25.0.encoder.03.scale             [JOINT_1]ENCODER_SCALE
 
 # --- connections ---
 # axis movement
-net y-index-enable  <=> pid.y.index-enable  <=> axis.1.index-enable     <=> hm2_5i25.0.encoder.03.index-enable
-net y-enable        =>  pid.y.enable         => axis.1.amp-enable-out    => hm2_5i25.0.stepgen.01.enable
-net y-pos-cmd       =>  axis.1.motor-pos-cmd => pid.y.command
-net y-pos-fb        =>  hm2_5i25.0.encoder.03.position => pid.y.feedback => axis.1.motor-pos-fb
+net y-index-enable  <=> pid.y.index-enable  <=> joint.1.index-enable     <=> hm2_5i25.0.encoder.03.index-enable
+net y-enable        =>  pid.y.enable         => joint.1.amp-enable-out    => hm2_5i25.0.stepgen.01.enable
+net y-pos-cmd       =>  joint.1.motor-pos-cmd => pid.y.command
+net y-pos-fb        =>  hm2_5i25.0.encoder.03.position => pid.y.feedback => joint.1.motor-pos-fb
 net y-output        =>  pid.y.output         => hm2_5i25.0.stepgen.01.velocity-cmd
 # home & limit
-net home-y          =>  axis.1.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-06-not
-net min-y           =>  axis.1.neg-lim-sw-in    <=	hm2_5i25.0.7i76.0.0.input-04-not
-net max-y           =>  axis.1.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-05-not
+net home-y          =>  joint.1.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-06-not
+net min-y           =>  joint.1.neg-lim-sw-in    <=	hm2_5i25.0.7i76.0.0.input-04-not
+net max-y           =>  joint.1.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-05-not
 
 #*******************
 #  AXIS Z
 #*******************
 
-setp   pid.z.Pgain     [AXIS_2]P
-setp   pid.z.Igain     [AXIS_2]I
-setp   pid.z.Dgain     [AXIS_2]D
-setp   pid.z.bias      [AXIS_2]BIAS
-setp   pid.z.FF0       [AXIS_2]FF0
-setp   pid.z.FF1       [AXIS_2]FF1
-setp   pid.z.FF2       [AXIS_2]FF2
-setp   pid.z.deadband  [AXIS_2]DEADBAND
-setp   pid.z.maxoutput [AXIS_2]MAX_OUTPUT
+setp   pid.z.Pgain     [JOINT_2]P
+setp   pid.z.Igain     [JOINT_2]I
+setp   pid.z.Dgain     [JOINT_2]D
+setp   pid.z.bias      [JOINT_2]BIAS
+setp   pid.z.FF0       [JOINT_2]FF0
+setp   pid.z.FF1       [JOINT_2]FF1
+setp   pid.z.FF2       [JOINT_2]FF2
+setp   pid.z.deadband  [JOINT_2]DEADBAND
+setp   pid.z.maxoutput [JOINT_2]MAX_OUTPUT
 setp   pid.z.error-previous-target true
 setp   pid.z.maxerror .0005
 
@@ -169,30 +170,30 @@ net z-output        =>  pid.z.output
 
 # Step Gen signals/setup
 
-setp   hm2_5i25.0.stepgen.02.dirsetup        [AXIS_2]DIRSETUP
-setp   hm2_5i25.0.stepgen.02.dirhold         [AXIS_2]DIRHOLD
-setp   hm2_5i25.0.stepgen.02.steplen         [AXIS_2]STEPLEN
-setp   hm2_5i25.0.stepgen.02.stepspace       [AXIS_2]STEPSPACE
-setp   hm2_5i25.0.stepgen.02.position-scale  [AXIS_2]STEP_SCALE
+setp   hm2_5i25.0.stepgen.02.dirsetup        [JOINT_2]DIRSETUP
+setp   hm2_5i25.0.stepgen.02.dirhold         [JOINT_2]DIRHOLD
+setp   hm2_5i25.0.stepgen.02.steplen         [JOINT_2]STEPLEN
+setp   hm2_5i25.0.stepgen.02.stepspace       [JOINT_2]STEPSPACE
+setp   hm2_5i25.0.stepgen.02.position-scale  [JOINT_2]STEP_SCALE
 setp   hm2_5i25.0.stepgen.02.step_type        0
 setp   hm2_5i25.0.stepgen.02.control-type     1
-setp   hm2_5i25.0.stepgen.02.maxaccel         [AXIS_2]STEPGEN_MAXACCEL
-setp   hm2_5i25.0.stepgen.02.maxvel           [AXIS_2]STEPGEN_MAXVEL
+setp   hm2_5i25.0.stepgen.02.maxaccel         [JOINT_2]STEPGEN_MAXACCEL
+setp   hm2_5i25.0.stepgen.02.maxvel           [JOINT_2]STEPGEN_MAXVEL
 
 # ---closedloop stepper signals---
 
-net z-pos-cmd    <= axis.2.motor-pos-cmd
-net z-vel-cmd    <= axis.2.joint-vel-cmd
+net z-pos-cmd    <= joint.2.motor-pos-cmd
+net z-vel-cmd    <= joint.2.vel-cmd
 net z-output     <= hm2_5i25.0.stepgen.02.velocity-cmd
 net z-pos-fb     <= hm2_5i25.0.stepgen.02.position-fb
-net z-pos-fb     => axis.2.motor-pos-fb
-net z-enable     <= axis.2.amp-enable-out
+net z-pos-fb     => joint.2.motor-pos-fb
+net z-enable     <= joint.2.amp-enable-out
 net z-enable     => hm2_5i25.0.stepgen.02.enable
 
 # home & limit
-net home-z  =>  axis.2.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-10
-net min-z   =>  axis.2.neg-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-08
-net max-z   =>  axis.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
+net home-z  =>  joint.2.home-sw-in       <=  hm2_5i25.0.7i76.0.0.input-10
+net min-z   =>  joint.2.neg-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-08
+net max-z   =>  joint.2.pos-lim-sw-in    <=  hm2_5i25.0.7i76.0.0.input-09
 
 #*******************
 #  SPINDLE S
@@ -244,31 +245,31 @@ setp gear.shifter.max-low                       [SPINDLE_9]GEAR_LOW_MAX_SPEED
 
 
 # --- wire
-net spindle.enable              <= motion.spindle-on                => pid.s.enable         
+net spindle.enable              <= spindle.0.on                => pid.s.enable         
 # > gear shift
 net spindle.enable              => gear.shifter.spindle-on
-net spindle.vel-cmd-rps         <= motion.spindle-speed-out-rps     => gear.shifter.speed-command
+net spindle.vel-cmd-rps         <= spindle.0.speed-out-rps     => gear.shifter.speed-command
 net spindle.gear-vel-cmd-rps    <= gear.shifter.motor-speed         => limit2.spindle-ramp.in
 net gear.engage-low-gear        <= gear.shifter.low-gear            => hm2_5i25.0.7i76.0.0.output-09
 net gear.engage-high-gear       <= gear.shifter.high-gear           => hm2_5i25.0.7i76.0.0.output-08
 # > ramp 
 net spindle.ramp-vel-cmd-rps    <= limit2.spindle-ramp.out          => pid.s.command
 # > feedback loop
-net spindle.vel-fb              <= hm2_5i25.0.encoder.00.velocity   => motion.spindle-speed-in          => pid.s.feedback
+net spindle.vel-fb              <= hm2_5i25.0.encoder.00.velocity   => spindle.0.speed-in          => pid.s.feedback
 net spindle.vel-fb              => scale.spindle-vel-fb-rpm.in      => gear.shifter.motor-feedback
 net spindle.vel-fb-rpm          <= scale.spindle-vel-fb-rpm.out
 net spindle.trans-vel-fb        <= gear.shifter.calculated-spindle-feedback                             => scale.spindle-trans-vel-fb-rpm.in      
 net spindle.trans-vel-fb-rpm    <= scale.spindle-trans-vel-fb-rpm.out                                   => abs.spindle-trans-vel-fb-rpm-abs.in
 net spindle.trans-vel-fb-rpm-abs <= abs.spindle-trans-vel-fb-rpm-abs.out
-net spindle.revs                <= hm2_5i25.0.encoder.00.position   => motion.spindle-revs
-net spindle.index-enable       <=> motion.spindle-index-enable     <=> hm2_5i25.0.encoder.00.index-enable   => pid.s.index-enable
+net spindle.revs                <= hm2_5i25.0.encoder.00.position   => spindle.0.revs
+net spindle.index-enable       <=> spindle.0.index-enable     <=> hm2_5i25.0.encoder.00.index-enable   => pid.s.index-enable
 # > servo output
 net spindle.spinout             <= pid.s.output                     => hm2_5i25.0.7i76.0.0.spinout
 net spindle.enable              => hm2_5i25.0.7i76.0.0.spinena
 # > at speed
 net spindle.vel-cmd-rps         => near.spindle-at-speed.in1
 net spindle.trans-vel-fb        => near.spindle-at-speed.in2
-net spindle.at-speed            <= near.spindle-at-speed.out        => motion.spindle-at-speed
+net spindle.at-speed            <= near.spindle-at-speed.out        => spindle.0.at-speed
 
 
 #******************************
@@ -277,31 +278,31 @@ net spindle.at-speed            <= near.spindle-at-speed.out        => motion.sp
 
 # ---HALUI signals---
 
-net joint-select-a        halui.joint.0.select
+net joint-select-a        halui.axis.x.select
 net x-is-homed            halui.joint.0.is-homed
-#net jog-x-pos             halui.jog.0.plus
-#net jog-x-neg             halui.jog.0.minus
-net jog-x-analog          halui.jog.0.analog
+#net jog-x-pos             halui.axis.x.plus
+#net jog-x-neg             halui.axis.x.minus
+net jog-x-analog          halui.axis.x.analog
 
-net joint-select-b        halui.joint.1.select
+net joint-select-b        halui.axis.y.select
 net y-is-homed            halui.joint.1.is-homed
-#net jog-y-pos             halui.jog.1.plus
-#net jog-y-neg             halui.jog.1.minus
-net jog-y-analog          halui.jog.1.analog
+#net jog-y-pos             halui.axis.y.plus
+#net jog-y-neg             halui.axis.y.minus
+net jog-y-analog          halui.axis.y.analog
 
-net joint-select-c        halui.joint.2.select
+net joint-select-c        halui.axis.z.select
 net z-is-homed            halui.joint.2.is-homed
-#net jog-z-pos             halui.jog.2.plus
-#net jog-z-neg             halui.jog.2.minus
-net jog-z-analog          halui.jog.2.analog
+#net jog-z-pos             halui.axis.z.plus
+#net jog-z-neg             halui.axis.z.minus
+net jog-z-analog          halui.axis.z.analog
 
-net jog-selected-pos      halui.jog.selected.plus
-net jog-selected-neg      halui.jog.selected.minus
-#net jog-speed             halui.jog-speed 
+net jog-selected-pos      halui.axis.selected.plus
+net jog-selected-neg      halui.axis.selected.minus
+#net jog-speed             halui.axis.jog-speed 
 
-net spindle-manual-cw     halui.spindle.forward
-net spindle-manual-ccw    halui.spindle.reverse
-net spindle-manual-stop   halui.spindle.stop
+net spindle-manual-cw     halui.spindle.0.forward
+net spindle-manual-ccw    halui.spindle.0.reverse
+net spindle-manual-stop   halui.spindle.0.stop
 
 net machine-is-on         halui.machine.is-on
 net MDI-mode              halui.mode.is-mdi
@@ -335,7 +336,7 @@ net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-p
 #*******************
 # ShuttleXpress
 #*******************
-loadusr -W shuttlexpress /dev/hidraw_shuttlexpress
+loadusr -W shuttle /dev/hidraw_shuttle
 #loadrt abs_s32 names=abs_s32.sxp
 #loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
 #loadrt tristate_float names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,tristate-float.sxp-jog-2,tristate-float.sxp-jog-3,tristate-float.sxp-jog-4,tristate-float.sxp-jog-5,tristate-float.sxp-jog-6,tristate-float.sxp-jog-7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
@@ -345,15 +346,15 @@ loadusr -W shuttlexpress /dev/hidraw_shuttlexpress
 #loadrt ilowpass names=ilowpass.sxp-feed
 #loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
 
-# --- wire shuttlexpress to meaningful signals ---
-net sxp.x-button        <= shuttlexpress.0.button-0
-net sxp.y-button        <= shuttlexpress.0.button-1
-net sxp.z-button        <= shuttlexpress.0.button-2
-net sxp.a-button        <= shuttlexpress.0.button-3
-net sxp.step-button     <= shuttlexpress.0.button-4
-net sxp.counts          <= shuttlexpress.0.counts
-net sxp.spring-wheel    <= shuttlexpress.0.spring-wheel-s32
-net sxp.spring-wheel-f  <= shuttlexpress.0.spring-wheel-f
+# --- wire shuttle to meaningful signals ---
+net sxp.x-button        <= shuttle.0.button-0
+net sxp.y-button        <= shuttle.0.button-1
+net sxp.z-button        <= shuttle.0.button-2
+net sxp.a-button        <= shuttle.0.button-3
+net sxp.step-button     <= shuttle.0.button-4
+net sxp.counts          <= shuttle.0.counts
+net sxp.spring-wheel    <= shuttle.0.spring-wheel-s32
+net sxp.spring-wheel-f  <= shuttle.0.spring-wheel-f
 
 # ---
 # --- Spring Wheel Configuration ---
@@ -418,47 +419,47 @@ net sxp.jog-speed-factor           <= tristate-float.sxp-jog-6.out
 net sxp.jog-speed-factor           <= tristate-float.sxp-jog-7.out
 
 net sxp.jog-speed-factor           => scale.sxp-jog-speed.in
-net jog-speed                      <= scale.sxp-jog-speed.out  => halui.jog-speed
+net jog-speed                      <= scale.sxp-jog-speed.out  => halui.axis.jog-speed
 
 # --- jog x-button activation ---
 # pos
 net sxp.x-button                    => and2.sxp-x-pos.in0
 net sxp.spring-wheel-is-positive    => and2.sxp-x-pos.in1
-net sxp.jog-x-pos                   <= and2.sxp-x-pos.out   => halui.jog.0.plus
+net sxp.jog-x-pos                   <= and2.sxp-x-pos.out   => halui.axis.x.plus
 # neg
 net sxp.x-button                    => and2.sxp-x-neg.in0
 net sxp.spring-wheel-is-negative    => and2.sxp-x-neg.in1
-net sxp.jog-x-neg                   <= and2.sxp-x-neg.out   => halui.jog.0.minus
+net sxp.jog-x-neg                   <= and2.sxp-x-neg.out   => halui.axis.x.minus
 
 # --- jog y-button activation ---
 # pos
 net sxp.y-button                    => and2.sxp-y-pos.in0
 net sxp.spring-wheel-is-positive    => and2.sxp-y-pos.in1
-net sxp.jog-y-pos                   <= and2.sxp-y-pos.out   => halui.jog.1.plus
+net sxp.jog-y-pos                   <= and2.sxp-y-pos.out   => halui.axis.y.plus
 # neg
 net sxp.y-button                    => and2.sxp-y-neg.in0
 net sxp.spring-wheel-is-negative    => and2.sxp-y-neg.in1
-net sxp.jog-y-neg                   <= and2.sxp-y-neg.out   => halui.jog.1.minus
+net sxp.jog-y-neg                   <= and2.sxp-y-neg.out   => halui.axis.y.minus
 
 # --- jog z-button activation ---
 # pos
 net sxp.z-button                    => and2.sxp-z-pos.in0
 net sxp.spring-wheel-is-positive    => and2.sxp-z-pos.in1
-net sxp.jog-z-pos                   <= and2.sxp-z-pos.out   => halui.jog.2.plus
+net sxp.jog-z-pos                   <= and2.sxp-z-pos.out   => halui.axis.z.plus
 # neg
 net sxp.z-button                    => and2.sxp-z-neg.in0
 net sxp.spring-wheel-is-negative    => and2.sxp-z-neg.in1
-net sxp.jog-z-neg                   <= and2.sxp-z-neg.out   => halui.jog.2.minus
+net sxp.jog-z-neg                   <= and2.sxp-z-neg.out   => halui.axis.z.minus
 
 # --- jog a-button activation ---
 # pos
 net sxp.a-button                    => and2.sxp-a-pos.in0
 net sxp.spring-wheel-is-positive    => and2.sxp-a-pos.in1
-#net sxp.jog-a-pos                   <= and2.sxp-a-pos.out   => halui.jog.3.plus
+#net sxp.jog-a-pos                   <= and2.sxp-a-pos.out   => halui.axis.a.plus
 # neg
 net sxp.a-button                    => and2.sxp-a-neg.in0
 net sxp.spring-wheel-is-negative    => and2.sxp-a-neg.in1
-#net sxp.jog-a-neg                   <= and2.sxp-a-neg.out   => halui.jog.3.minus
+#net sxp.jog-a-neg                   <= and2.sxp-a-neg.out   => halui.axis.a.minus
 
 
 # ---
@@ -503,16 +504,16 @@ net sxp.jog-increment   <= tristate-float.sxp-jog-increment-2.out
 net sxp.jog-increment   <= tristate-float.sxp-jog-increment-3.out
 
 # set jog scale
-net sxp.jog-increment => axis.0.jog-scale
-net sxp.jog-increment => axis.1.jog-scale
-net sxp.jog-increment => axis.2.jog-scale
-#net sxp.jog-increment => axis.3.jog-scale
+net sxp.jog-increment => joint.0.jog-scale axis.x.jog-scale
+net sxp.jog-increment => joint.1.jog-scale axis.y.jog-scale
+net sxp.jog-increment => joint.2.jog-scale axis.z.jog-scale
+#net sxp.jog-increment => joint.3.jog-scale axis.a.jog-scale
 
 # jog enable on button click
-net sxp.x-button    axis.0.jog-enable
-net sxp.y-button    axis.1.jog-enable
-net sxp.z-button    axis.2.jog-enable
-#net sxp.a-button    axis.3.jog-enable
+net sxp.x-button    axis.x.jog-enable
+net sxp.y-button    axis.y.jog-enable
+net sxp.z-button    axis.z.jog-enable
+#net sxp.a-button    axis.a.jog-enable
 
 # smooth using lowpass filter
 setp ilowpass.sxp-feed.gain     0.02
@@ -521,10 +522,10 @@ setp ilowpass.sxp-feed.scale    1000
 net sxp.counts          => ilowpass.sxp-feed.in
 net sxp.counts-smooth   <= ilowpass.sxp-feed.out
 
-net sxp.counts-smooth   => axis.0.jog-counts
-net sxp.counts-smooth   => axis.1.jog-counts
-net sxp.counts-smooth   => axis.2.jog-counts
-#net sxp.counts-smooth   => axis.0.jog-counts
+net sxp.counts-smooth   => joint.0.jog-counts axis.x.jog-counts
+net sxp.counts-smooth   => joint.1.jog-counts axis.y.jog-counts
+net sxp.counts-smooth   => joint.2.jog-counts axis.z.jog-counts
+#net sxp.counts-smooth   => joint.0.jog-counts axis.x.jog-counts
 
 #*******************
 # Touch Probe

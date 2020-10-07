@@ -1,0 +1,3 @@
+[submodule "ZX45/probe_screen_v2"]
+	path = ZX45/probe_screen_v2
+	url = git@github.com:PeterMue/probe_screen_v2.git

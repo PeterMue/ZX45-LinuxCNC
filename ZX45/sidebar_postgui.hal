@@ -30,3 +30,12 @@ net probe-err-counts        <= encoder.probe-err-counter.counts => gladevcp.prob
 net probe-err-timer-hours   <= time.probe-err-timer.hours       => gladevcp.probe-err-time-hours
 net probe-err-timer-minutes <= time.probe-err-timer.minutes     => gladevcp.probe-err-time-minutes
 net probe-err-timer-seconds <= time.probe-err-timer.seconds     => gladevcp.probe-err-time-seconds
+
+# Lubrication
+net lube.manual		    <= gladevcp.lube.manual
+net lube.active		    => gladevcp.lube.active-led
+
+# Auxiliary
+net aux.light-left	    <= gladevcp.aux.light-left	=> gladevcp.aux.light-left.led	=> hm2_5i25.0.7i76.0.0.output-05
+net aux.light-right	    <= gladevcp.aux.light-right	=> gladevcp.aux.light-right.led	=> hm2_5i25.0.7i76.0.0.output-06
+

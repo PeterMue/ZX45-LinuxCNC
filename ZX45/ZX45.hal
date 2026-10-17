@@ -33,7 +33,7 @@ loadrt tristate_float   names=tristate-float.sxp-jog-0,tristate-float.sxp-jog-1,
 loadrt updown           names=updown.sxp-feed-cycle
 loadrt encoder          names=encoder.probe-err-counter
 loadrt time             names=time.probe-err-timer
-loadrt oneshot          names=oneshot.probe-err
+loadrt oneshot          names=oneshot.probe-err,oneshot.lube-manual
 
 
 #*******************
@@ -534,3 +534,15 @@ net probe-in                   <=  hm2_5i25.0.7i76.0.0.input-31-not
 net probe-err                  =>  encoder.probe-err-counter.phase-A    <= hm2_5i25.0.7i76.0.0.input-30-not
 net probe-err-counter-start    => oneshot.probe-err.in                  => time.probe-err-timer.start
 net probe-err-reset            <= oneshot.probe-err.out                 => encoder.probe-err-counter.reset
+
+#*******************
+# Lubrication
+#*******************
+addf oneshot.lube-manual	servo-thread
+
+setp oneshot.lube-manual.width	3
+
+net lube.manual			=> oneshot.lube-manual.in
+net lube.trigger		<= oneshot.lube-manual.out		=> hm2_5i25.0.7i76.0.0.output-04
+net lube.active			<= hm2_5i25.0.7i76.0.0.input-28
+
